@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catoysigma</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #74ebd5, #acb6e5);
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 {
+      color: #ffffff;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    }
+    video {
+      width: 100%;
+      max-width: 400px;
+      border: 5px solid #ffffff;
+      border-radius: 10px;
+      margin: 20px 0;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    }
+    button {
+      padding: 12px 24px;
+      background: #007BFF;
+      color: #ffffff;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 18px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    #result {
+      margin: 20px 0;
+      font-size: 20px;
+      color: #ffffff;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <h1>Face Recognition</h1>
+  <video id="camera" autoplay playsinline></video>
+  <button id="captureBtn" onclick="capture()">Capture</button>
+  <div id="result"></div>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <script>
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        document.getElementById('camera').srcObject = stream;
+      }).catch(err => {
+        alert("Camera access denied: " + err);
+      });
+
+    function capture() {
+      let video = document.getElementById('camera');
+      let canvas = document.getElementById('canvas');
+      let resultDiv = document.getElementById('result');
+      let button = document.getElementById('captureBtn');
+      resultDiv.innerHTML = "Processing...";
+      button.disabled = true;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(sendImage, 'image/jpeg');
+    }
+
+    function sendImage(blob) {
+      let formData = new FormData();
+      formData.append('image', blob, 'photo.jpg');
+
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        let resultDiv = document.getElementById('result');
+        let button = document.getElementById('captureBtn');
+        if (data.result) {
+          // Redirect to gallery page when successful
+          window.location.href = "/gallery";
+        } else {
+          resultDiv.innerHTML = "Access Denied: " + (data.error || 'Face not recognized');
+        }
+        button.disabled = false;
+      })
+      .catch(() => {
+        document.getElementById('result').innerHTML = "Error processing image";
+        document.getElementById('captureBtn').disabled = false;
+      });
+    }
+  </script>
+</body>
+</html>

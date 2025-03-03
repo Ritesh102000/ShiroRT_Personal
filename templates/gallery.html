@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gallery</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Container for maintaining a responsive aspect ratio */
+    .iframe-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      margin-bottom: 1rem;
+    }
+    .iframe-container iframe {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container my-4">
+    <h1 class="text-center mb-4">ShiroRT Hub</h1>
+    
+    
+    <div class="row">
+      {% for image in images %}
+        {% set file_id = image.url.split('id=')[1] %}
+        <div class="col-12 col-md-6 col-lg-4 mb-4">
+          <div class="card h-100">
+            <div class="iframe-container">
+              <iframe src="https://drive.google.com/file/d/{{ file_id }}/preview" title="{{ image.title }}"></iframe>
+            </div>
+            <div class="card-body text-center">
+              <!-- Updated download link using the proxy route -->
+              <a href="/download/{{ file_id }}" class="btn btn-primary btn-sm">Download</a>
+              <form action="/delete" method="post" style="display:inline-block;" onsubmit="return confirm('Are you sure you want to delete this image?');">
+                <input type="hidden" name="file_id" value="{{ file_id }}">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <hr>
+    
+    <h2 class="mt-4">Upload New Image</h2>
+    <form action="/upload_new" method="post" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="imageUpload" class="form-label">Select an image:</label>
+        <input class="form-control" type="file" id="imageUpload" name="image" required>
+      </div>
+      <button type="submit" class="btn btn-success">Upload</button>
+    </form>
+  </div>
+  
+  <!-- Bootstrap Bundle JS (with Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
