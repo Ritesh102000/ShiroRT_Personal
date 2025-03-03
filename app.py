@@ -19,11 +19,13 @@ KNOWN_FOLDER = 'static/known_faces'
 MAX_KNOWN_FACES = 3
 os.makedirs(Captured_FOLDER, exist_ok=True)
 os.makedirs(KNOWN_FOLDER, exist_ok=True)
-
+os.environ["DEEPFACE_HOME"] = "weights"
 # --- Google Drive Configuration ---
 GDRIVE_FOLDER_ID = '1SAO_GDcLlRkr4LhsXBLzWMP6yvlL97dZ'
 
 gauth = GoogleAuth()
+
+
 gauth.LoadCredentialsFile("mycreds.txt")
 if gauth.credentials is None:
     gauth.LocalWebserverAuth()
@@ -157,6 +159,6 @@ def download_file(file_id):
         )
     except Exception as e:
         return jsonify({'result': False, 'error': str(e)})
-    
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+
+if __name__ == '__main__':
+    app.run(debug=True)
